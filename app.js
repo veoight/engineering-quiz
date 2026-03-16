@@ -6,6 +6,17 @@ let dimensionsData = null;
 let majorsData = null;
 let radarChart = null;
 
+// HTML 转义函数 - 防止 XSS 攻击
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
@@ -31,8 +42,8 @@ function renderWelcomeScreen() {
     const dimensionsGrid = document.getElementById('dimensions-grid');
     dimensionsGrid.innerHTML = dimensionsData.map(dim => `
         <div class="dimension-item">
-            <span class="icon">${dim.icon}</span>
-            <span>${dim.name}</span>
+            <span class="icon">${escapeHtml(dim.icon)}</span>
+            <span>${escapeHtml(dim.name)}</span>
         </div>
     `).join('');
 }
@@ -233,14 +244,14 @@ function renderResultsList(scores) {
         return `
             <div class="result-item" id="result-${index + 1}">
                 <div class="result-header-row">
-                    <span class="result-icon">${dim.icon}</span>
-                    <span class="result-name">${dim.name}</span>
+                    <span class="result-icon">${escapeHtml(dim.icon)}</span>
+                    <span class="result-name">${escapeHtml(dim.name)}</span>
                     <span class="result-score">${score} / 25</span>
                 </div>
                 <div class="result-bar">
                     <div class="result-bar-fill" style="width: ${percentage}%"></div>
                 </div>
-                <p class="result-desc">${desc}</p>
+                <p class="result-desc">${escapeHtml(desc)}</p>
             </div>
         `;
     }).join('');
@@ -268,13 +279,13 @@ function renderRecommendations(majorMatches) {
 
     container.innerHTML = top3.map((major, index) => `
         <div class="recommendation-item">
-            <div class="rank">${ranks[index]}</div>
-            <div class="major-name">${major.icon} ${major.name}</div>
+            <div class="rank">${escapeHtml(ranks[index])}</div>
+            <div class="major-name">${escapeHtml(major.icon)} ${escapeHtml(major.name)}</div>
             <div class="match-score">匹配度: ${major.matchScore}%</div>
             <ul class="careers">
-                ${major.careers.map(career => `<li>• ${career}</li>`).join('')}
+                ${major.careers.map(career => `<li>• ${escapeHtml(career)}</li>`).join('')}
             </ul>
-            <div class="companies">🏢 ${major.companies}</div>
+            <div class="companies">🏢 ${escapeHtml(major.companies)}</div>
         </div>
     `).join('');
 }
